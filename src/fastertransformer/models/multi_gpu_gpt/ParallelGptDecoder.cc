@@ -124,7 +124,7 @@ ParallelGptDecoder<T>::ParallelGptDecoder(ParallelGptDecoder<T> const& decoder)
       int8_mode_(decoder.int8_mode_),
       custom_all_reduce_comm_(decoder.custom_all_reduce_comm_),
       enable_custom_all_reduce_(decoder.enable_custom_all_reduce_),
-      use_ffn_(decoder.use_ffn_)) {
+      use_ffn_(decoder.use_ffn_) {
   initialize();
 }
 
