@@ -51,7 +51,7 @@ int main(int argc, char* argv[]) {
   if (argc >= 2) {
     ini_name = std::string(argv[1]);
   } else {
-    ini_name = "../examples/cpp/multi_gpu_gpt/gpt_config.ini";
+    ini_name = "../examples/cpp/multi_gpu_gpt/parallel_ablation.ini";
   }
 
   std::string in_csv;
