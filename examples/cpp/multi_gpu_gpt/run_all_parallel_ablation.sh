@@ -17,14 +17,14 @@ echo "bs,output_len,use_ffn,avg_duration" >results_"$used_gpus".csv
 for bs in "${bsz[@]}"; do
     for ol in "${output_lens[@]}"; do
         for use_ffn in "${use_ffns[@]}"; do
-            bash parallel_ablation.sh "$bs" "$input_len" "$ol" "$use_ffn" "$used_gpus" >results.txt
+            bash parallel_ablation.sh "$bs" "$input_len" "$ol" "$use_ffn" "$used_gpus" >results_"$used_gpus".txt
             # parse results.txt and write to results.csv
             # each line in results.csv is: [INFO] request_batch_size 8 beam_width 1 head_num 128 size_per_head 160 total_output_len 110 decoder_layers 1 vocab_size 51200 FT-CPP-decoding-beamsearch-time 191.30 ms
             # there will be $used_gpus lines of records, and we only need the average of the last-1 column
-            durations=$(grep "FT-CPP-decoding-beamsearch-time" results.txt | awk '{print $(NF-1)}')
+            durations=$(grep "FT-CPP-decoding-beamsearch-time" results_"$used_gpus".txt | awk '{print $(NF-1)}')
             avg_duration=$(echo "$durations" | awk '{ total += $1; count++ } END { print total/count }')
             echo "$bs,$ol,$use_ffn,$avg_duration" >>results_"$used_gpus".csv
-            rm results.txt
+            rm results_"$used_gpus".txt
         done
     done
 done
