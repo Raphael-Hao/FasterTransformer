@@ -203,7 +203,8 @@ ParallelGptContextDecoder<T>::ParallelGptContextDecoder(
     bool sparse,
     int int8_mode,
     std::shared_ptr<AbstractCustomComm> custom_all_reduce_comm,
-    int enable_custom_all_reduce)
+    int enable_custom_all_reduce,
+    bool use_ffn)
     : BaseLayer(stream, cublas_wrapper, allocator, is_free_buffer_after_forward, nullptr, sparse),
       max_batch_size_(max_batch_size),
       max_seq_len_(max_seq_len),
@@ -226,6 +227,7 @@ ParallelGptContextDecoder<T>::ParallelGptContextDecoder(
       custom_all_reduce_comm_(custom_all_reduce_comm),
       enable_custom_all_reduce_(enable_custom_all_reduce),
       attention_type_(attention_type),
+      use_ffn_(use_ffn),
       int8_mode_(int8_mode) {
   initialize();
 }
@@ -257,6 +259,7 @@ ParallelGptContextDecoder<T>::ParallelGptContextDecoder(ParallelGptContextDecode
       custom_all_reduce_comm_(decoder.custom_all_reduce_comm_),
       enable_custom_all_reduce_(decoder.enable_custom_all_reduce_),
       attention_type_(decoder.attention_type_),
+      use_ffn_(decoder.use_ffn_),
       int8_mode_(decoder.int8_mode_) {
   initialize();
 }
@@ -608,8 +611,10 @@ void ParallelGptContextDecoder<T>::forward(
             Tensor{MEMORY_GPU, TYPE_INT32, {h_token_num, moe_k_}, expert_for_source_row_});
       }
 
-      ffn_layer_->resetInterSize(inter_size_ / tensor_para_.world_size_);
-      ffn_layer_->forward(&ffn_output_tensors, &ffn_input_tensors, &layer_weight->ffn_weights);
+      if (use_ffn_) {
+        ffn_layer_->resetInterSize(inter_size_ / tensor_para_.world_size_);
+        ffn_layer_->forward(&ffn_output_tensors, &ffn_input_tensors, &layer_weight->ffn_weights);
+      }
 
       // the adapter after ffn (only pre layernorm currently)
       PUSH_RANGE("post ffn");
@@ -640,7 +645,6 @@ void ParallelGptContextDecoder<T>::forward(
               "ffn_output",
               Tensor{MEMORY_GPU, data_type, {moe_k_ * h_token_num, hidden_units_}, fc2_result_});
         }
-
         ffn_layer_->resetInterSize(adapter_inter_size_ / tensor_para_.world_size_);
         ffn_layer_->forward(&ffn_output_tensors, &ffn_input_tensors,
                             &layer_weight->after_ffn_adapter_weights);

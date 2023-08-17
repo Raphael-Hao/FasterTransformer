@@ -71,7 +71,8 @@ ParallelGptDecoder<T>::ParallelGptDecoder(
     bool sparse,
     int int8_mode,
     std::shared_ptr<AbstractCustomComm> custom_all_reduce_comm,
-    int enable_custom_all_reduce)
+    int enable_custom_all_reduce,
+    bool use_ffn)
     : BaseLayer(stream, cublas_wrapper, allocator, is_free_buffer_after_forward, nullptr, sparse),
       max_batch_size_(max_batch_size),
       head_num_(head_num),
@@ -91,7 +92,8 @@ ParallelGptDecoder<T>::ParallelGptDecoder(
       pipeline_para_(pipeline_para),
       int8_mode_(int8_mode),
       custom_all_reduce_comm_(custom_all_reduce_comm),
-      enable_custom_all_reduce_(enable_custom_all_reduce) {
+      enable_custom_all_reduce_(enable_custom_all_reduce),
+      use_ffn_(use_ffn) {
   initialize();
 }
 
@@ -121,7 +123,8 @@ ParallelGptDecoder<T>::ParallelGptDecoder(ParallelGptDecoder<T> const& decoder)
       pipeline_para_(decoder.pipeline_para_),
       int8_mode_(decoder.int8_mode_),
       custom_all_reduce_comm_(decoder.custom_all_reduce_comm_),
-      enable_custom_all_reduce_(decoder.enable_custom_all_reduce_) {
+      enable_custom_all_reduce_(decoder.enable_custom_all_reduce_),
+      use_ffn_(decoder.use_ffn_)) {
   initialize();
 }
 
@@ -451,8 +454,10 @@ void ParallelGptDecoder<T>::forward(
           Tensor{MEMORY_GPU, TYPE_INT32, {local_batch_size, moe_k_}, expert_for_source_row_});
     }
 
-    ffn_layer_->resetInterSize(inter_size_ / tensor_para_.world_size_);
-    ffn_layer_->forward(&ffn_output_tensors, &ffn_input_tensors, &layer_weight->ffn_weights);
+    if (use_ffn_) {
+      ffn_layer_->resetInterSize(inter_size_ / tensor_para_.world_size_);
+      ffn_layer_->forward(&ffn_output_tensors, &ffn_input_tensors, &layer_weight->ffn_weights);
+    }
 
     // the adapter after ffn
     PUSH_RANGE("post ffn");

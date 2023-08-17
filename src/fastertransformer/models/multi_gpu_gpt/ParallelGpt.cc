@@ -35,13 +35,13 @@ void ParallelGpt<T>::initialize() {
       0, 0, head_num_, size_per_head_, inter_size_, num_layer_, expert_num_, moe_k_,
       moe_layer_index_, layernorm_eps_, gpt_variant_params_, tensor_para_, pipeline_para_, stream_,
       cublas_wrapper_, allocator_, is_free_buffer_after_forward_, is_context_qk_buf_float_,
-      attention_type_, sparse_, int8_mode_, custom_all_reduce_comm_, enable_custom_all_reduce_);
+      attention_type_, sparse_, int8_mode_, custom_all_reduce_comm_, enable_custom_all_reduce_,use_ffn_);
 
   gpt_decoder_ = new ParallelGptDecoder<T>(
       0, head_num_, size_per_head_, inter_size_, num_layer_, expert_num_, moe_k_, moe_layer_index_,
       layernorm_eps_, gpt_variant_params_, tensor_para_, pipeline_para_, stream_, cublas_wrapper_,
       allocator_, is_free_buffer_after_forward_, sparse_, int8_mode_, custom_all_reduce_comm_,
-      enable_custom_all_reduce_);
+      enable_custom_all_reduce_, use_ffn_);
 
   dynamic_decode_layer_ = new DynamicDecodeLayer<float>(
       vocab_size_, vocab_size_padded_,
@@ -280,6 +280,7 @@ ParallelGpt<T>::ParallelGpt(size_t max_batch_size,
                             int int8_mode,
                             std::shared_ptr<AbstractCustomComm> custom_all_reduce_comm,
                             int enable_custom_all_reduce,
+                            bool use_ffn,
                             float shared_contexts_ratio)
     : BaseLayer(stream,
                 cublas_wrapper,
@@ -316,6 +317,7 @@ ParallelGpt<T>::ParallelGpt(size_t max_batch_size,
       int8_mode_(int8_mode),
       custom_all_reduce_comm_(custom_all_reduce_comm),
       enable_custom_all_reduce_(enable_custom_all_reduce),
+      use_ffn_(use_ffn),
       shared_contexts_ratio_(shared_contexts_ratio) {
   int local_vacab_size = ceil(vocab_size_ / 1.f / tensor_para_.world_size_);
   if (std::is_same<half, T>::value
@@ -362,6 +364,7 @@ ParallelGpt<T>::ParallelGpt(ParallelGpt<T> const& gpt)
       int8_mode_(gpt.int8_mode_),
       custom_all_reduce_comm_(gpt.custom_all_reduce_comm_),
       enable_custom_all_reduce_(gpt.enable_custom_all_reduce_),
+      use_ffn_(gpt.use_ffn_),
       shared_contexts_ratio_(gpt.shared_contexts_ratio_) {
   initialize();
 }

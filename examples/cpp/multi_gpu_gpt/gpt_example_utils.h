@@ -53,6 +53,7 @@ struct model_config_t {
     int                prompt_learning_num_tasks;
 
     gptVariantParams gpt_variants;
+    bool use_ffn;
 };
 
 struct request_config_t {

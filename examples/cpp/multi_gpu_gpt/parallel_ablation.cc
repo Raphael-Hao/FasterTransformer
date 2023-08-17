@@ -174,7 +174,7 @@ void multi_gpu_gpt_example(const INIReader reader, std::string in_csv) {
                      1.0f,  // repetition_penalty,
                      tensor_para, pipeline_para, stream, &cublas_wrapper, &allocator, false, &prop,
                      attention_type, model_config.sparse, model_config.int8_mode, nullptr, 0,
-                     request_config.shared_contexts_ratio);
+                     model_config.use_ffn, request_config.shared_contexts_ratio);
 
   std::unordered_map<std::string, Tensor> input_tensors;
   int* d_input_ids = nullptr;
