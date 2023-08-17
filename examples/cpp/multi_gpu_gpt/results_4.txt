@@ -1,0 +1,24 @@
+Total ranks: 4.
+P3 is running with 3 GPU.
+Device Tesla V100-SXM3-32GB
+P1 is running with 1 GPU.
+Device Tesla V100-SXM3-32GB
+P2 is running with 2 GPU.
+Device Tesla V100-SXM3-32GB
+P0 is running with 0 GPU.
+Device Tesla V100-SXM3-32GB
+[FT][INFO] NCCL initialized rank=0 world_size=4 tensor_para=NcclParam[rank=0, world_size=4, nccl_comm=0x564660ae6610] pipeline_para=NcclParam[rank=0, world_size=1, nccl_comm=0x564660cdf260]
+[FT][INFO] NCCL initialized rank=3 world_size=4 tensor_para=NcclParam[rank=3, world_size=4, nccl_comm=0x562358005e30] pipeline_para=NcclParam[rank=0, world_size=1, nccl_comm=0x5623581fea80]
+[FT][INFO] NCCL initialized rank=2 world_size=4 tensor_para=NcclParam[rank=2, world_size=4, nccl_comm=0x558e2dbf9e60] pipeline_para=NcclParam[rank=0, world_size=1, nccl_comm=0x558e2ddf2ab0]
+[FT][INFO] NCCL initialized rank=1 world_size=4 tensor_para=NcclParam[rank=1, world_size=4, nccl_comm=0x556a509f9e70] pipeline_para=NcclParam[rank=0, world_size=1, nccl_comm=0x556a50bf2ac0]
+[WARNING] gemm_config.in is not found; using default GEMM algo
+[WARNING] gemm_config.in is not found; using default GEMM algo
+[WARNING] gemm_config.in is not found; using default GEMM algo
+[WARNING] gemm_config.in is not found; using default GEMM algo
+after allocation    : free: 24.34 GB, total: 31.74 GB, used:  7.40 GB
+after allocation    : free: 24.34 GB, total: 31.74 GB, used:  7.40 GB
+after allocation    : free: 24.36 GB, total: 31.74 GB, used:  7.38 GB
+after allocation    : free: 24.46 GB, total: 31.74 GB, used:  7.28 GB
+Writing 181760 elements
+27224 23307  6955 33735 35630 29322 31939 39317 16652 44303 
+zeroCount = 0
