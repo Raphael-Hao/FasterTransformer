@@ -30,6 +30,8 @@ sed -i "s/max_batch_size=.*/max_batch_size=$request_bs/g" parallel_ablation.ini
 sed -i "s/request_output_len=.*/request_output_len=$output_len/g" parallel_ablation.ini
 # modify parallel_ablation.ini to change the use_ffn to $use_ffn
 sed -i "s/use_ffn=.*/use_ffn=$use_ffn/g" parallel_ablation.ini
+# modify parallel_ablation.ini to change the tensor_para_size to $used_gpus
+sed -i "s/tensor_para_size=.*/tensor_para_size=$used_gpus/g" parallel_ablation.ini
 
 # cd to build directory run parallel_ablation and cd back to examples/cpp/multi_gpu_gpt
 cd ../../../build && mpirun -n "$used_gpus" ./bin/parallel_ablation && cd - || exit
