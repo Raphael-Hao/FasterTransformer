@@ -46,6 +46,8 @@ ddp_duration_datas["ffn"] = (
 )
 ddp_duration_datas = ddp_duration_datas.drop(["use_ffn"], axis=1)
 
+print(ddp_duration_datas)
+
 # %% prepare the plot environment
 import matplotlib.pyplot as plt
 import matplotlib as mpl
@@ -60,8 +62,24 @@ for i, gpu_num in enumerate(gpu_nums):
         duration_data = duration_datas[gpu_num][
             (duration_datas[gpu_num].output_len == seq_len)
         ]
-        duration_ddp  = ddp_duration_datas[ddp_duration_datas.output_len == seq_len]
-
+        duration_ddp = ddp_duration_datas[ddp_duration_datas.output_len == seq_len]
+        duration_ddp_data = []
+        for bs in bsz:
+            duration_ddp_data.append(
+                duration_ddp[duration_ddp.bs == bs / gpu_num][
+                    ["attn", "ffn", "avg_duration"]
+                ].values[0]
+            )
+        duration_ddp_data = np.array(duration_ddp_data)
+        axes[i, j].plot(
+            duration_data.bs, duration_ddp_data[:, 0], label="attn_ddp", linestyle="--"
+        )
+        axes[i, j].plot(
+            duration_data.bs, duration_ddp_data[:, 1], label="ffn_ddp", linestyle="--"
+        )
+        axes[i, j].plot(
+            duration_data.bs, duration_ddp_data[:, 2], label="total_ddp", linestyle="--"
+        )
         axes[i, j].plot(duration_data.bs, duration_data.attn, label="attn")
         axes[i, j].plot(duration_data.bs, duration_data.ffn, label="ffn")
         axes[i, j].plot(duration_data.bs, duration_data.avg_duration, label="total")
@@ -76,6 +94,24 @@ figure, axes = plt.subplots(3, 6, figsize=(30, 10))
 for i, gpu_num in enumerate(gpu_nums):
     for j, bs in enumerate(bsz):
         duration_data = duration_datas[gpu_num][(duration_datas[gpu_num].bs == bs)]
+        duration_ddp = ddp_duration_datas[ddp_duration_datas.bs == bs / gpu_num]
+
+        axes[i, j].plot(
+            duration_data.output_len,
+            duration_ddp.attn,
+            label="attn_ddp",
+            linestyle="--",
+        )
+        axes[i, j].plot(
+            duration_data.output_len, duration_ddp.ffn, label="ffn_ddp", linestyle="--"
+        )
+        axes[i, j].plot(
+            duration_data.output_len,
+            duration_ddp.avg_duration,
+            label="total_ddp",
+            linestyle="--",
+        )
+
         axes[i, j].plot(duration_data.output_len, duration_data.attn, label="attn")
         axes[i, j].plot(duration_data.output_len, duration_data.ffn, label="ffn")
         axes[i, j].plot(
@@ -100,6 +136,21 @@ for i, bs in enumerate(bsz):
                 ][["attn", "ffn", "avg_duration"]].values[0]
             )
         duration_data = np.array(duration_data)
+
+        duration_ddp = ddp_duration_datas[(ddp_duration_datas.output_len == seq_len)]
+        duration_ddp_data = []
+        for gpu_num in gpu_nums:
+            duration_ddp_data.append(
+                duration_ddp[duration_ddp.bs == bs / gpu_num][
+                    ["attn", "ffn", "avg_duration"]
+                ].values[0]
+            )
+        duration_ddp_data = np.array(duration_ddp_data)
+
+        axes[i, j].plot(gpu_nums, duration_ddp_data[:, 0], label="attn_ddp", linestyle="--")
+        axes[i, j].plot(gpu_nums, duration_ddp_data[:, 1], label="ffn_ddp", linestyle="--")
+        axes[i, j].plot(gpu_nums, duration_ddp_data[:, 2], label="total_ddp", linestyle="--")
+
         axes[i, j].plot(gpu_nums, duration_data[:, 0], label="attn")
         axes[i, j].plot(gpu_nums, duration_data[:, 1], label="ffn")
         axes[i, j].plot(gpu_nums, duration_data[:, 2], label="total")
