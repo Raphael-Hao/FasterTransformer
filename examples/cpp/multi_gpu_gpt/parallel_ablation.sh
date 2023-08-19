@@ -53,7 +53,7 @@ while [[ $# -gt 0 ]]; do
         ;;
 
     --use-ffn)
-        int_use_ffn=ON
+        int_use_ffn=$2
         shift 2
         ;;
 
@@ -74,7 +74,6 @@ if [ "$int_use_ffn" -eq 0 ]; then
 else
     use_ffn=true
 fi
-
 
 # generate start_ids.csv, $request_bs lines, each line has $input_len number, each number is a random number between 0 and 50256
 python3 generate_start_ids.py --request_bs "$request_bs" --input_len "$input_len" --used_gpus "$used_gpus"
