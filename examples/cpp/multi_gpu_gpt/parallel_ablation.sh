@@ -94,7 +94,7 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # cd to build directory run parallel_ablation and cd back to examples/cpp/multi_gpu_gpt
 # list all files in bin and echo them to a file
-echo "Run parallel_ablation with $used_gpus GPUs"
+echo "Run parallel_ablation with GPUs: $used_gpus, bs: $request_bs, input_len: $input_len, output_len: $output_len, model: $model_name, use_ffn: $use_ffn"
 
 cd "$SCRIPT_DIR"/../../../build &&
     mpirun -n "$used_gpus" ./bin/parallel_ablation \
