@@ -5,22 +5,82 @@
 # --------
 # Author: Weihao Cui
 
-request_bs=$1
-#input sequence length
-input_len=$2
-#output sequence length
-output_len=$3
-#use_ffn: 0 for false, 1 for true
-int_use_ffn=$4
+ARGUMENT_LIST=(
+    "gpus:"
+    "bs:"
+    "input-len:"
+    "output-len:"
+    "model:"
+    "use-ffn:"
+)
+
+# read arguments
+opts=$(
+    getopt \
+        --longoptions "$(printf "%s," "${ARGUMENT_LIST[@]}")" \
+        --name "$(basename "$0")" \
+        --options "" \
+        -- "$@"
+)
+
+eval set -- "$opts"
+
+while [[ $# -gt 0 ]]; do
+    case "$1" in
+    --gpus)
+        used_gpus=$2
+        shift 2
+        ;;
+
+    --bs)
+        request_bs=$2
+        shift 2
+        ;;
+
+    --input-len)
+        input_len=$2
+        shift 2
+        ;;
+
+    --output-len)
+        output_len=$2
+        shift 2
+        ;;
+
+    --model)
+        model_name=$2
+        shift 2
+        ;;
+
+    --use-ffn)
+        int_use_ffn=ON
+        shift 2
+        ;;
+
+    --)
+        shift
+        break
+        ;;
+
+    *)
+        echo "Unexpected option: $1 - this should not happen."
+        exit 2
+        ;;
+    esac
+done
+
 if [ "$int_use_ffn" -eq 0 ]; then
     use_ffn=false
 else
     use_ffn=true
 fi
+
 used_gpus=$5
 
 # generate start_ids.csv, $request_bs lines, each line has $input_len number, each number is a random number between 0 and 50256
-python3 generate_start_ids.py --request_bs $request_bs --input_len $input_len --used_gpus $used_gpus
+python3 generate_start_ids.py --request_bs "$request_bs" --input_len "$input_len" --used_gpus "$used_gpus"
+# modify parallel_ablation.ini to change the model_name to $model_name
+sed -i "s/model_name=.*/model_name=$model_name/g" parallel_ablation_"$used_gpus".ini
 # modify parallel_ablation.ini to change the request_batch_size to $request_bs
 sed -i "s/request_batch_size=.*/request_batch_size=$request_bs/g" parallel_ablation_"$used_gpus".ini
 # change max_batch_size to $request_bs
