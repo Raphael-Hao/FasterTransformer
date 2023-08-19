@@ -100,4 +100,4 @@ echo "$dir" >> dir.txt
 
 echo "Start running parallel_ablation with $used_gpus GPUs"
 
-mpirun -n "$used_gpus" ./bin/parallel_ablation ../examples/cpp/multi_gpu_gpt/parallel_ablation_"$used_gpus".ini ../examples/cpp/multi_gpu_gpt/start_ids_"$used_gpus".csv
+mpirun -n "$used_gpus" /lustre/home/acct-seecq/seecq/whcui/FasterTransformer/build/bin/parallel_ablation ../examples/cpp/multi_gpu_gpt/parallel_ablation_"$used_gpus".ini ../examples/cpp/multi_gpu_gpt/start_ids_"$used_gpus".csv
