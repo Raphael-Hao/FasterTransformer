@@ -94,4 +94,6 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 cd "${SCRIPT_DIR}" || exit 2
 
 # cd to build directory run parallel_ablation and cd back to examples/cpp/multi_gpu_gpt
-cd ../../../build && mpirun -n "$used_gpus" ./bin/parallel_ablation ../examples/cpp/multi_gpu_gpt/parallel_ablation_"$used_gpus".ini ../examples/cpp/multi_gpu_gpt/start_ids_"$used_gpus".csv && cd - || exit
+cd ../../../build || exit 2
+
+mpirun -n "$used_gpus" ./bin/parallel_ablation ../examples/cpp/multi_gpu_gpt/parallel_ablation_"$used_gpus".ini ../examples/cpp/multi_gpu_gpt/start_ids_"$used_gpus".csv
