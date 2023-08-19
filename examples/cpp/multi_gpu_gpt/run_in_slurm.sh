@@ -10,6 +10,10 @@ PS1="$ "
 # shellcheck source=/dev/null
 source /lustre/home/acct-seecq/seecq/whcui/root_bashrc
 
+# cd to the directory of this script
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "${SCRIPT_DIR}" || exit 2
+
 ARGUMENT_LIST=(
     "parallel:"
     "model:"
