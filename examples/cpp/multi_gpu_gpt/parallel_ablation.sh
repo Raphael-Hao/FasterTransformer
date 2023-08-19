@@ -75,7 +75,6 @@ else
     use_ffn=true
 fi
 
-used_gpus=$5
 
 # generate start_ids.csv, $request_bs lines, each line has $input_len number, each number is a random number between 0 and 50256
 python3 generate_start_ids.py --request_bs "$request_bs" --input_len "$input_len" --used_gpus "$used_gpus"
