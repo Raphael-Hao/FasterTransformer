@@ -97,4 +97,4 @@ cd "$SCRIPT_DIR"/../../../build || exit
 # list all files in bin and echo them to a file
 ls ./bin >../examples/cpp/multi_gpu_gpt/bin_list.txt
 
-mpirun -n "$used_gpus" ./bin/parallel_ablation ../examples/cpp/multi_gpu_gpt/parallel_ablation_"$used_gpus".ini ../examples/cpp/multi_gpu_gpt/start_ids_"$used_gpus".csv
+mpirun -n "$used_gpus" ./bin/parallel_ablation "$SCRIPT_DIR"/examples/cpp/multi_gpu_gpt/parallel_ablation_"$used_gpus".ini "$SCRIPT_DIR"/examples/cpp/multi_gpu_gpt/start_ids_"$used_gpus".csv
