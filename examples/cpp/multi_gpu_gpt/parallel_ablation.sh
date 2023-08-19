@@ -93,10 +93,10 @@ sed -i "s/tensor_para_size=.*/tensor_para_size=$used_gpus/g" parallel_ablation_"
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # cd to build directory run parallel_ablation and cd back to examples/cpp/multi_gpu_gpt
-cd "$SCRIPT_DIR"/../../../build || exit
 # list all files in bin and echo them to a file
-echo "Run parallel_ablation with $used_gpus GPUs" >> "$SCRIPT_DIR"/parallel_ablation_"$used_gpus".log
+echo "Run parallel_ablation with $used_gpus GPUs"
 
-export PATH="$SCRIPT_DIR"/../../../build/bin:"$PATH"
-
-mpirun -n "$used_gpus" parallel_ablation "$SCRIPT_DIR"/examples/cpp/multi_gpu_gpt/parallel_ablation_"$used_gpus".ini "$SCRIPT_DIR"/examples/cpp/multi_gpu_gpt/start_ids_"$used_gpus".csv
+cd "$SCRIPT_DIR"/../../../build &&
+    mpirun -n "$used_gpus" parallel_ablation \
+        "$SCRIPT_DIR"/examples/cpp/multi_gpu_gpt/parallel_ablation_"$used_gpus".ini \
+        "$SCRIPT_DIR"/examples/cpp/multi_gpu_gpt/start_ids_"$used_gpus".csv && cd - || exit
