@@ -13,7 +13,7 @@ input_len=10
 #output_lens=(10 20 30 40 50 60 70 80 90 100 200 300 400 500 600 700 800)
 output_lens=(300 400 500 600 700 800)
 use_ffns=(0 1)
-#echo "bs,output_len,use_ffn,avg_duration" >results_"$used_gpus".csv
+echo "bs,output_len,use_ffn,avg_duration" >results_"$used_gpus".csv
 
 # loop over bsz, output_len, use_ffn
 for bs in "${bsz[@]}"; do

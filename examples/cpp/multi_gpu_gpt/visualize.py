@@ -46,7 +46,6 @@ ddp_duration_datas["ffn"] = (
 )
 ddp_duration_datas = ddp_duration_datas.drop(["use_ffn"], axis=1)
 
-print(ddp_duration_datas)
 
 # %% prepare the plot environment
 import matplotlib.pyplot as plt

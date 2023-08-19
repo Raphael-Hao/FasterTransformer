@@ -1,3 +1,4 @@
+bs,output_len,use_ffn,avg_duration
 1,10,0,71.95
 1,10,1,160.91
 1,20,0,143.7
