@@ -36,7 +36,7 @@ while [[ $# -gt 0 ]]; do
 
     --model)
         selected_models=$2
-        shift 1
+        shift 2
         ;;
 
     --gpus)
