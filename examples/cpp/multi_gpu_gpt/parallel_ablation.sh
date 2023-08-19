@@ -97,4 +97,6 @@ cd "$SCRIPT_DIR"/../../../build || exit
 # list all files in bin and echo them to a file
 echo "Run parallel_ablation with $used_gpus GPUs" >> "$SCRIPT_DIR"/parallel_ablation_"$used_gpus".log
 
-mpirun -n "$used_gpus" ./bin/parallel_ablation "$SCRIPT_DIR"/examples/cpp/multi_gpu_gpt/parallel_ablation_"$used_gpus".ini "$SCRIPT_DIR"/examples/cpp/multi_gpu_gpt/start_ids_"$used_gpus".csv
+export PATH="$SCRIPT_DIR"/../../../build/bin:"$PATH"
+
+mpirun -n "$used_gpus" parallel_ablation "$SCRIPT_DIR"/examples/cpp/multi_gpu_gpt/parallel_ablation_"$used_gpus".ini "$SCRIPT_DIR"/examples/cpp/multi_gpu_gpt/start_ids_"$used_gpus".csv
