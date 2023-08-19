@@ -91,10 +91,12 @@ sed -i "s/use_ffn=.*/use_ffn=$use_ffn/g" parallel_ablation_"$used_gpus".ini
 sed -i "s/tensor_para_size=.*/tensor_para_size=$used_gpus/g" parallel_ablation_"$used_gpus".ini
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cd "${SCRIPT_DIR}" || exit 2
+echo "$SCRIPT_DIR" >> dir.txt
 
 # cd to build directory run parallel_ablation and cd back to examples/cpp/multi_gpu_gpt
 cd ../../../build || exit 2
+dir=$(pwd)
+echo "$dir" >> dir.txt
 
 echo "Start running parallel_ablation with $used_gpus GPUs"
 
