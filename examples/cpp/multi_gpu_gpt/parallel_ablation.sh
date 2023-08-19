@@ -92,7 +92,8 @@ sed -i "s/tensor_para_size=.*/tensor_para_size=$used_gpus/g" parallel_ablation_"
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 echo "$SCRIPT_DIR" >> dir.txt
-
+echo "$PATH" >> dir.txt
+printenv >> env.txt
 # cd to build directory run parallel_ablation and cd back to examples/cpp/multi_gpu_gpt
 cd ../../../build || exit 2
 dir=$(pwd)
