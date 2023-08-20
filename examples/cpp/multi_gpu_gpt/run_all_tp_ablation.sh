@@ -57,7 +57,7 @@ available_models=(
     gpt_89B
     gpt_175B
 )
-# parse selected_models into array,should be like "megatron_345M,megatron_1.3B"
+# parse selected_models into array, should be like "megatron_345M,megatron_1.3B"
 IFS=',' read -ra selected_models <<<"$selected_models"
 # check if selected_models is included in available_models
 for model in "${selected_models[@]}"; do
@@ -79,23 +79,28 @@ input_len=10
 output_lens=(10 20 30 40 50 60 70 80 90 100 200 300 400 500 600 700 800)
 use_ffns=(0 1)
 
+gpu_name=$(nvidia-smi --query-gpu=name --format=csv,noheader | uniq)
+gpu_name=${gpu_name// /_}
+gpu_name=${gpu_name//-/_}
+gpu_name=${gpu_name//NVIDIA_/}
+
 # loop over selected_models bsz, output_len, use_ffn
 for model in "${selected_models[@]}"; do
-    echo "bs,output_len,use_ffn,avg_duration" >results_"$used_gpus"_"$model".csv
+    echo "bs,output_len,use_ffn,avg_duration" >results_"$used_gpus"_"$model"_"$gpu_name".csv
     for bs in "${bsz[@]}"; do
         for ol in "${output_lens[@]}"; do
             for use_ffn in "${use_ffns[@]}"; do
                 bash parallel_ablation.sh --gpus "$used_gpus" --bs "$bs" \
                     --input-len "$input_len" --output-len "$ol" \
                     --model "$model" --use-ffn "$use_ffn" \
-                    >results_"$used_gpus"_"$model".txt
+                    >results_"$used_gpus"_"$model"_"$gpu_name".txt
                 # parse results.txt and write to results.csv
                 # each line in results.csv is: [INFO] request_batch_size 8 beam_width 1 head_num 128 size_per_head 160 total_output_len 110 decoder_layers 1 vocab_size 51200 FT-CPP-decoding-beamsearch-time 191.30 ms
                 # there will be $used_gpus lines of records, and we only need the average of the last-1 column
-                durations=$(grep "FT-CPP-decoding-beamsearch-time" results_"$used_gpus"_"$model".txt | awk '{print $(NF-1)}')
+                durations=$(grep "FT-CPP-decoding-beamsearch-time" results_"$used_gpus"_"$model"_"$gpu_name".txt | awk '{print $(NF-1)}')
                 avg_duration=$(echo "$durations" | awk '{ total += $1; count++ } END { print total/count }')
-                echo "$bs,$ol,$use_ffn,$avg_duration" >>results_"$used_gpus"_"$model".csv
-                rm results_"$used_gpus"_"$model".txt
+                echo "$bs,$ol,$use_ffn,$avg_duration" >>results_"$used_gpus"_"$model"_"$gpu_name".csv
+                rm results_"$used_gpus"_"$model"_"$gpu_name".txt
             done
         done
     done

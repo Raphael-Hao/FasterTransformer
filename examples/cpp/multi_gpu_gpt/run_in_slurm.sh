@@ -7,8 +7,11 @@
 
 # make sure bashrc is loaded
 PS1="$ "
+
+# get home directory of current user
+USER_HOME=$(eval echo ~"${SUDO_USER}")
 # shellcheck source=/dev/null
-source /lustre/home/acct-seecq/seecq/whcui/root_bashrc
+source "$USER_HOME"/whcui/root_bashrc
 
 # cd to the directory of this script
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
