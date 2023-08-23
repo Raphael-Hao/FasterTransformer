@@ -17,6 +17,8 @@ gpu_nums = [2, 4, 8]
 bsz = [8, 16, 32, 64, 128, 256]
 seq_len_1 = [10, 20, 30, 40, 50, 60, 70, 80, 90, 100]
 seq_len_2 = [100, 200, 300, 400, 500, 600, 700, 800]
+models = ["gpt2", "gpt2-medium", "gpt2-large", "gpt2-xl"]
+gpus = ["1", "2", "4", "8"]
 data_filenames = {
     2: "results_2.csv",
     4: "results_4.csv",
