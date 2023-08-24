@@ -68,9 +68,9 @@ import matplotlib.pyplot as plt
 import matplotlib as mpl
 
 mpl.rc("hatch", linewidth=8)
+selected_seq_lens = [10, 60, 100, 400, 800]
 
 # %% plot the latency increase with the number of bs under different number of gpus and different number of seq_len
-selected_seq_lens = [10, 60, 100, 400, 800]
 for gpu in profiled_gpus:
     for model in models:
         if gpu == "A100_SXM4_40GB":
@@ -185,58 +185,59 @@ for model in models:
         figure.savefig(figure_path, dpi=300, bbox_inches="tight")
 
 # %% plot the latency increase with the number of gpus under different number of bs and different number of seq_len
-for fig_id, (model, gpu) in enumerate(zip(models, profiled_gpus)):
-    if gpu == "A100_SXM4_40GB":
-        gpu_nums = [2, 4]
-    else:
-        gpu_nums = [2, 4, 8]
-    total_rows = len(bsz)
-    total_cols = len(selected_seq_lens)
-    figure, axes = plt.subplots(
-        total_rows, total_cols, figsize=(total_cols * 6, total_rows * 6)
-    )
-    for i, bs in enumerate(bsz):
-        for j, seq_len in enumerate(selected_seq_lens):
-            duration_data = []
-            for gpu_num in gpu_nums:
-                duration_data.append(
-                    tp_duration_datas[gpu][model][gpu_num][
-                        (tp_duration_datas[gpu][model][gpu_num].bs == bs)
-                        & (tp_duration_datas[gpu][model][gpu_num].output_len == seq_len)
-                    ][["attn", "ffn", "avg_duration"]].values[0]
+for model in models:
+    for gpu in profiled_gpus:
+        if gpu == "A100_SXM4_40GB":
+            gpu_nums = [2, 4]
+        else:
+            gpu_nums = [2, 4, 8]
+        total_rows = len(bsz)
+        total_cols = len(selected_seq_lens)
+        figure, axes = plt.subplots(
+            total_rows, total_cols, figsize=(total_cols * 6, total_rows * 6)
+        )
+        for i, bs in enumerate(bsz):
+            for j, seq_len in enumerate(selected_seq_lens):
+                duration_data = []
+                for gpu_num in gpu_nums:
+                    duration_data.append(
+                        tp_duration_datas[gpu][model][gpu_num][
+                            (tp_duration_datas[gpu][model][gpu_num].bs == bs)
+                            & (tp_duration_datas[gpu][model][gpu_num].output_len == seq_len)
+                        ][["attn", "ffn", "avg_duration"]].values[0]
+                    )
+                duration_data = np.array(duration_data)
+
+                duration_ddp = dp_duration_datas[gpu][model][
+                    (dp_duration_datas[gpu][model].output_len == seq_len)
+                ]
+                duration_dp_data = []
+                for gpu_num in gpu_nums:
+                    duration_dp_data.append(
+                        duration_ddp[duration_ddp.bs == bs / gpu_num][
+                            ["attn", "ffn", "avg_duration"]
+                        ].values[0]
+                    )
+                duration_dp_data = np.array(duration_dp_data)
+
+                axes[i, j].plot(
+                    gpu_nums, duration_dp_data[:, 0], label="attn_ddp", linestyle="--"
                 )
-            duration_data = np.array(duration_data)
-
-            duration_ddp = dp_duration_datas[gpu][model][
-                (dp_duration_datas[gpu][model].output_len == seq_len)
-            ]
-            duration_dp_data = []
-            for gpu_num in gpu_nums:
-                duration_dp_data.append(
-                    duration_ddp[duration_ddp.bs == bs / gpu_num][
-                        ["attn", "ffn", "avg_duration"]
-                    ].values[0]
+                axes[i, j].plot(
+                    gpu_nums, duration_dp_data[:, 1], label="ffn_ddp", linestyle="--"
                 )
-            duration_dp_data = np.array(duration_dp_data)
+                axes[i, j].plot(
+                    gpu_nums, duration_dp_data[:, 2], label="total_ddp", linestyle="--"
+                )
 
-            axes[i, j].plot(
-                gpu_nums, duration_dp_data[:, 0], label="attn_ddp", linestyle="--"
-            )
-            axes[i, j].plot(
-                gpu_nums, duration_dp_data[:, 1], label="ffn_ddp", linestyle="--"
-            )
-            axes[i, j].plot(
-                gpu_nums, duration_dp_data[:, 2], label="total_ddp", linestyle="--"
-            )
-
-            axes[i, j].plot(gpu_nums, duration_data[:, 0], label="attn")
-            axes[i, j].plot(gpu_nums, duration_data[:, 1], label="ffn")
-            axes[i, j].plot(gpu_nums, duration_data[:, 2], label="total")
-            axes[i, j].set_title(f"bs = {bs}, seq_len = {seq_len}")
-            axes[i, j].legend()
-        axes[i, 0].set_ylabel("latency (ms)")
-    figure_path = figure_dir / gpu / model / "latency_increase_with_gpu_num.png"
-    figure_path.parent.mkdir(exist_ok=True, parents=True)
-    figure.savefig(figure_path, dpi=300, bbox_inches="tight")
+                axes[i, j].plot(gpu_nums, duration_data[:, 0], label="attn")
+                axes[i, j].plot(gpu_nums, duration_data[:, 1], label="ffn")
+                axes[i, j].plot(gpu_nums, duration_data[:, 2], label="total")
+                axes[i, j].set_title(f"bs = {bs}, seq_len = {seq_len}")
+                axes[i, j].legend()
+            axes[i, 0].set_ylabel("latency (ms)")
+        figure_path = figure_dir / gpu / model / "latency_increase_with_gpu_num.png"
+        figure_path.parent.mkdir(exist_ok=True, parents=True)
+        figure.savefig(figure_path, dpi=300, bbox_inches="tight")
 
 # %%
