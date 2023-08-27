@@ -185,6 +185,13 @@ for model in models:
         figure.savefig(figure_path, dpi=300, bbox_inches="tight")
 
 # %% plot the latency increase with the number of gpus under different number of bs and different number of seq_len
+models = [
+    "megatron_345M",
+    "megatron_1.3B",
+    "megatron_6.7B",
+    "megatron_20B",
+]
+
 for model in models:
     for gpu in profiled_gpus:
         if gpu == "A100_SXM4_40GB":
@@ -213,15 +220,23 @@ for model in models:
                 duration_data = []
 
                 for gpu_num in gpu_nums:
-                    duration_data.append(
-                        tp_duration_datas[gpu][model][gpu_num][
-                            (tp_duration_datas[gpu][model][gpu_num].bs == bs)
-                            & (tp_duration_datas[gpu][model][gpu_num].output_len == seq_len)
-                        ][["attn", "ffn", "avg_duration"]].values[0]
-                    )
+                    if gpu_num == 1:
+                        duration_data.append(
+                            duration_ddp[duration_ddp.bs == bs / gpu_num][
+                                ["attn", "ffn", "avg_duration"]
+                            ].values[0]
+                        )
+                    else:
+                        duration_data.append(
+                            tp_duration_datas[gpu][model][gpu_num][
+                                (tp_duration_datas[gpu][model][gpu_num].bs == bs)
+                                & (
+                                    tp_duration_datas[gpu][model][gpu_num].output_len
+                                    == seq_len
+                                )
+                            ][["attn", "ffn", "avg_duration"]].values[0]
+                        )
                 duration_data = np.array(duration_data)
-
-
 
                 axes[i, j].plot(
                     gpu_nums, duration_dp_data[:, 0], label="attn_ddp", linestyle="--"
